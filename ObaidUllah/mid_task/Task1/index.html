@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mid Task 1 - ES6 Features and Classes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f1a;
+      --card: #16213e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --border: #2d2d44;
+      --gradient: linear-gradient(135deg, #7c3aed, #06b6d4);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--gradient);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 0.8rem;
+    }
+
+    header h1 {
+      font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+    }
+
+    header p { color: var(--muted); }
+
+    .container { max-width: 820px; margin: 0 auto; display: grid; gap: 1.5rem; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--gradient);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.85rem;
+    }
+
+    pre {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: #a5f3fc;
+      overflow-x: auto;
+      line-height: 1.7;
+      margin-bottom: 0.8rem;
+    }
+
+    .output {
+      background: #0a0a14;
+      border: 1px solid var(--success);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: var(--success);
+      line-height: 1.8;
+    }
+
+    .output .lbl {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Mid Task 1</div>
+  <h1>ES6 Features and Classes</h1>
+  <p>var vs let vs const · Arrow Functions · ES6 Class</p>
+</header>
+
+<div class="container">
+
+  <!-- Section 1: var, let, const -->
+  <div class="card">
+    <h2>Section 1 — var, let, and const</h2>
+    <pre>
+// var: function-scoped, can be re-declared
+var x = 10;
+var x = 20; // no error
+console.log("var x:", x); // 20
+
+// let: block-scoped, cannot be re-declared
+let age = 21;
+age = 22; // re-assignment allowed
+// let age = 25; // ERROR: already declared
+console.log("let age:", age); // 22
+
+// const: block-scoped, cannot be re-assigned
+const PI = 3.14159;
+// PI = 3; // ERROR: Assignment to constant variable
+console.log("const PI:", PI); // 3.14159
+    </pre>
+    <div class="output">
+      <div class="lbl">Output</div>
+      <div id="out1"></div>
+    </div>
+  </div>
+
+  <!-- Section 2: Arrow Function -->
+  <div class="card">
+    <h2>Section 2 — Arrow Function: Square of a Number</h2>
+    <pre>
+// Arrow function that calculates the square of a number
+const square = (num) => num * num;
+
+console.log("square(4)  =", square(4));   // 16
+console.log("square(7)  =", square(7));   // 49
+console.log("square(12) =", square(12));  // 144
+    </pre>
+    <div class="output">
+      <div class="lbl">Output</div>
+      <div id="out2"></div>
+    </div>
+  </div>
+
+  <!-- Section 3: Class Student -->
+  <div class="card">
+    <h2>Section 3 — Class: Student</h2>
+    <pre>
+class Student {
+  constructor(name, marks) {
+    this.name  = name;
+    this.marks = marks;
+  }
+
+  display() {
+    const avg = (this.marks.reduce((a, b) => a + b, 0) / this.marks.length).toFixed(1);
+    return `Name: ${this.name} | Marks: [${this.marks.join(", ")}] | Average: ${avg}`;
+  }
+}
+
+const s1 = new Student("Obaid", [85, 90, 78, 92]);
+const s2 = new Student("Ahmed", [70, 65, 80, 75]);
+
+console.log(s1.display());
+console.log(s2.display());
+    </pre>
+    <div class="output">
+      <div class="lbl">Output</div>
+      <div id="out3"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>ObaidUllah - Mid-Semester Assignment - Task 1</footer>
+
+<script>
+  // Helper: capture console.log output
+  function capture(fn) {
+    const logs = [];
+    const orig = console.log;
+    console.log = (...args) => logs.push(args.map(String).join(" "));
+    fn();
+    console.log = orig;
+    return logs;
+  }
+
+  function renderOutput(id, lines) {
+    document.getElementById(id).innerHTML = lines.map(l => `<div>${l}</div>`).join("");
+  }
+
+  // Section 1: var, let, const
+  renderOutput("out1", capture(() => {
+    var x = 10;
+    var x = 20;
+    console.log("var x:", x);
+
+    let age = 21;
+    age = 22;
+    console.log("let age:", age);
+
+    const PI = 3.14159;
+    console.log("const PI:", PI);
+  }));
+
+  // Section 2: Arrow Function
+  renderOutput("out2", capture(() => {
+    const square = (num) => num * num;
+    console.log("square(4)  =", square(4));
+    console.log("square(7)  =", square(7));
+    console.log("square(12) =", square(12));
+  }));
+
+  // Section 3: Class Student
+  renderOutput("out3", capture(() => {
+    class Student {
+      constructor(name, marks) {
+        this.name  = name;
+        this.marks = marks;
+      }
+      display() {
+        const avg = (this.marks.reduce((a, b) => a + b, 0) / this.marks.length).toFixed(1);
+        return `Name: ${this.name} | Marks: [${this.marks.join(", ")}] | Average: ${avg}`;
+      }
+    }
+    const s1 = new Student("Obaid", [85, 90, 78, 92]);
+    const s2 = new Student("Ahmed", [70, 65, 80, 75]);
+    console.log(s1.display());
+    console.log(s2.display());
+  }));
+</script>
+</body>
+</html>

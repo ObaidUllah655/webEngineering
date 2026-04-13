@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mid Task 4 - Async and Error Handling</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --card: #16213e; --accent: #a855f7; --accent2: #ec4899;
+      --text: #e2e8f0; --muted: #94a3b8; --success: #10b981; --danger: #ef4444;
+      --border: #2d2d44; --gradient: linear-gradient(135deg, #a855f7, #ec4899);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .badge { display: inline-block; background: var(--gradient); color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 999px; margin-bottom: 0.8rem; }
+    header h1 { font-size: clamp(1.7rem, 3.5vw, 2.4rem); font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+    header p { color: var(--muted); }
+    .container { max-width: 820px; margin: 0 auto; display: grid; gap: 1.5rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--gradient); }
+    .card.success-card::before { background: var(--success); }
+    .card.error-card::before   { background: var(--danger); }
+    .card h2 { font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+    .card.success-card h2 { color: var(--success); }
+    .card.error-card h2   { color: var(--danger); }
+    pre { background: #0a0a14; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 0.82rem; color: #a5f3fc; overflow-x: auto; line-height: 1.7; margin-bottom: 0.8rem; }
+
+    /* Loader */
+    .loader { text-align: center; padding: 1.5rem; color: var(--muted); }
+    .loader .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.6rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* User cards grid */
+    .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; }
+    .user-card {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      animation: fadeIn 0.3s ease both;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .user-avatar {
+      width: 38px; height: 38px;
+      background: var(--gradient);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem; color: #fff;
+      margin-bottom: 0.7rem;
+    }
+    .user-name  { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .user-email { font-size: 0.75rem; color: var(--muted); font-family: 'Fira Code', monospace; }
+    .user-city  { font-size: 0.75rem; color: var(--accent); margin-top: 0.2rem; }
+
+    /* Error box */
+    .error-box {
+      background: rgba(239,68,68,.1);
+      border: 1px solid var(--danger);
+      border-radius: 8px;
+      padding: 1rem;
+      color: #fca5a5;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+    .error-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--danger); margin-bottom: 0.4rem; }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Mid Task 4</div>
+  <h1>Async Programming and Error Handling</h1>
+  <p>Fetch API with .then() / .catch() - Successful and Failed requests</p>
+</header>
+
+<div class="container">
+
+  <!-- Code -->
+  <div class="card">
+    <h2>JavaScript Code Pattern</h2>
+    <pre>
+// Async fetch with .then() and .catch()
+fetch(url)
+  .then(response => {
+    if (!response.ok) throw new Error("HTTP Error: " + response.status);
+    return response.json();
+  })
+  .then(data => {
+    // SUCCESS: display the retrieved data
+    displayUsers(data);
+  })
+  .catch(error => {
+    // FAILED: handle the error gracefully
+    console.error("Fetch failed:", error.message);
+  });
+    </pre>
+  </div>
+
+  <!-- Successful Response -->
+  <div class="card success-card">
+    <h2>Successful Response - User Data from API</h2>
+    <div class="loader" id="loader-success"><div class="spinner"></div>Fetching users...</div>
+    <div class="users-grid" id="users-grid"></div>
+  </div>
+
+  <!-- Failed Request -->
+  <div class="card error-card">
+    <h2>Failed Request - Incorrect URL Demo</h2>
+    <pre>
+// This URL is intentionally wrong to demonstrate .catch()
+fetch("https://jsonplaceholder.typicode.com/INVALID_ENDPOINT_404")
+  .then(response => {
+    if (!response.ok) throw new Error("HTTP Error " + response.status);
+    return response.json();
+  })
+  .then(data => console.log(data))
+  .catch(error => console.error("Caught:", error.message));
+    </pre>
+    <div class="error-label">Error Output</div>
+    <div class="error-box" id="error-output">Triggering failed request...</div>
+  </div>
+
+</div>
+
+<footer>ObaidUllah - Mid-Semester Assignment - Task 4</footer>
+
+<script>
+  // --- SUCCESSFUL FETCH ---
+  const loaderSuccess = document.getElementById("loader-success");
+  const usersGrid     = document.getElementById("users-grid");
+
+  fetch("https://jsonplaceholder.typicode.com/users")
+    .then(response => {
+      if (!response.ok) throw new Error("HTTP Error: " + response.status);
+      return response.json();
+    })
+    .then(users => {
+      loaderSuccess.style.display = "none";
+      users.slice(0, 6).forEach((user, i) => {
+        const card = document.createElement("div");
+        card.className = "user-card";
+        card.style.animationDelay = `${i * 0.07}s`;
+        card.innerHTML = `
+          <div class="user-avatar">${user.name[0]}</div>
+          <div class="user-name">${user.name}</div>
+          <div class="user-email">${user.email}</div>
+          <div class="user-city">${user.address.city}</div>
+        `;
+        usersGrid.appendChild(card);
+      });
+    })
+    .catch(error => {
+      loaderSuccess.style.display = "none";
+      usersGrid.innerHTML = `<div style="color:#fca5a5">Error: ${error.message}</div>`;
+    });
+
+  // --- FAILED FETCH (intentionally wrong URL) ---
+  const errorOutput = document.getElementById("error-output");
+
+  fetch("https://jsonplaceholder.typicode.com/INVALID_ENDPOINT_404")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("HTTP Error " + response.status + " - Endpoint not found");
+      }
+      return response.json();
+    })
+    .then(data => {
+      errorOutput.textContent = "Success (unexpected): " + JSON.stringify(data);
+    })
+    .catch(error => {
+      // .catch() handles the error gracefully
+      errorOutput.innerHTML = `
+        <div>Caught by .catch():</div>
+        <div style="color:#f87171;margin-top:0.3rem">${error.message}</div>
+        <div style="color:#94a3b8;margin-top:0.5rem;font-size:0.75rem">The failed request was handled gracefully without crashing the application.</div>
+      `;
+    });
+</script>
+</body>
+</html>

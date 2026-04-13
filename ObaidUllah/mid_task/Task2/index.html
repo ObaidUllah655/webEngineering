@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mid Task 2 - JSON Data Handling</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --card: #16213e; --accent: #f59e0b; --accent2: #ec4899;
+      --text: #e2e8f0; --muted: #94a3b8; --success: #10b981; --border: #2d2d44;
+      --gradient: linear-gradient(135deg, #f59e0b, #ec4899);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .badge { display: inline-block; background: var(--gradient); color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 999px; margin-bottom: 0.8rem; }
+    header h1 { font-size: clamp(1.7rem, 3.5vw, 2.4rem); font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+    header p { color: var(--muted); }
+    .container { max-width: 820px; margin: 0 auto; display: grid; gap: 1.5rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--gradient); }
+    .card h2 { font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+    pre { background: #0a0a14; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 0.82rem; color: #a5f3fc; overflow-x: auto; line-height: 1.7; margin-bottom: 0.8rem; }
+    .output { background: #0a0a14; border: 1px solid var(--success); border-radius: 8px; padding: 0.9rem 1rem; font-family: 'Fira Code', monospace; font-size: 0.82rem; color: var(--success); line-height: 1.8; }
+    .output .lbl { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+    .result-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .result-table th, .result-table td { padding: 0.65rem 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .result-table th { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .result-table td { color: var(--text); font-family: 'Fira Code', monospace; }
+    footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Mid Task 2</div>
+  <h1>JSON Data Handling</h1>
+  <p>JSON.stringify() - JSON.parse() - Object Display</p>
+</header>
+
+<div class="container">
+
+  <!-- Step 1: Create Object -->
+  <div class="card">
+    <h2>Step 1 — Create a JavaScript Object</h2>
+    <pre>
+// Create a JavaScript object with name, age, course
+const student = {
+  name:   "Obaid Ullah",
+  age:    21,
+  course: "Web Engineering"
+};
+
+console.log("Original Object:", student);
+console.log("  name  :", student.name);
+console.log("  age   :", student.age);
+console.log("  course:", student.course);
+    </pre>
+    <div class="output">
+      <div class="lbl">Output</div>
+      <div id="out1"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: stringify -->
+  <div class="card">
+    <h2>Step 2 — Convert Object to JSON (JSON.stringify)</h2>
+    <pre>
+// JSON.stringify() converts a JavaScript object to a JSON string
+const jsonString = JSON.stringify(student);
+console.log("JSON String:", jsonString);
+
+// Pretty-print with indentation
+const prettyJSON = JSON.stringify(student, null, 2);
+console.log("Pretty JSON:\n" + prettyJSON);
+    </pre>
+    <div class="output">
+      <div class="lbl">Output</div>
+      <div id="out2"></div>
+    </div>
+  </div>
+
+  <!-- Step 3: parse -->
+  <div class="card">
+    <h2>Step 3 — Convert JSON back to Object (JSON.parse)</h2>
+    <pre>
+// JSON.parse() converts a JSON string back to a JavaScript object
+const parsedObject = JSON.parse(jsonString);
+console.log("Parsed Object:", parsedObject);
+console.log("Type:", typeof parsedObject);   // object
+console.log("name :", parsedObject.name);
+console.log("age  :", parsedObject.age);
+console.log("course:", parsedObject.course);
+    </pre>
+    <div class="output">
+      <div class="lbl">Output</div>
+      <div id="out3"></div>
+    </div>
+  </div>
+
+  <!-- Step 4: UI Display -->
+  <div class="card">
+    <h2>Step 4 — Display Results in UI</h2>
+    <table class="result-table" id="result-table">
+      <thead>
+        <tr><th>Property</th><th>Original Object</th><th>After Parse</th></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>ObaidUllah - Mid-Semester Assignment - Task 2</footer>
+
+<script>
+  function capture(fn) {
+    const logs = [];
+    const orig = console.log;
+    console.log = (...args) => logs.push(args.map(String).join(" "));
+    fn();
+    console.log = orig;
+    return logs;
+  }
+
+  function renderOutput(id, lines) {
+    document.getElementById(id).innerHTML = lines.map(l => `<div>${l}</div>`).join("");
+  }
+
+  // Shared data
+  const student = { name: "Obaid Ullah", age: 21, course: "Web Engineering" };
+  const jsonString = JSON.stringify(student);
+  const parsedObject = JSON.parse(jsonString);
+
+  // Step 1: Object
+  renderOutput("out1", capture(() => {
+    console.log("Original Object:", JSON.stringify(student));
+    console.log("  name  :", student.name);
+    console.log("  age   :", student.age);
+    console.log("  course:", student.course);
+  }));
+
+  // Step 2: stringify
+  renderOutput("out2", capture(() => {
+    console.log("JSON String:", jsonString);
+    console.log("Pretty JSON:");
+    console.log(JSON.stringify(student, null, 2));
+  }));
+
+  // Step 3: parse
+  renderOutput("out3", capture(() => {
+    console.log("Parsed Object:", JSON.stringify(parsedObject));
+    console.log("Type:", typeof parsedObject);
+    console.log("name :", parsedObject.name);
+    console.log("age  :", parsedObject.age);
+    console.log("course:", parsedObject.course);
+  }));
+
+  // Step 4: UI table
+  const tbody = document.getElementById("table-body");
+  Object.keys(student).forEach(key => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${key}</td>
+      <td>${student[key]}</td>
+      <td>${parsedObject[key]}</td>
+    `;
+    tbody.appendChild(row);
+  });
+</script>
+</body>
+</html>

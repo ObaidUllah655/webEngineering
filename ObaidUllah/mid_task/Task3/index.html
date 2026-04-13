@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mid Task 3 - Fetch API</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --card: #16213e; --accent: #10b981; --accent2: #06b6d4;
+      --text: #e2e8f0; --muted: #94a3b8; --success: #10b981; --danger: #ef4444;
+      --border: #2d2d44; --gradient: linear-gradient(135deg, #10b981, #06b6d4);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .badge { display: inline-block; background: var(--gradient); color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 999px; margin-bottom: 0.8rem; }
+    header h1 { font-size: clamp(1.7rem, 3.5vw, 2.4rem); font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+    header p { color: var(--muted); }
+    .container { max-width: 820px; margin: 0 auto; display: grid; gap: 1.5rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--gradient); }
+    .card h2 { font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+    pre { background: #0a0a14; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 0.82rem; color: #a5f3fc; overflow-x: auto; line-height: 1.7; margin-bottom: 0.8rem; }
+
+    /* Loader */
+    #loader { display: none; text-align: center; padding: 2rem; color: var(--muted); }
+    #loader .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.8rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Posts list */
+    .post-list { display: grid; gap: 0.75rem; margin-top: 0.5rem; }
+    .post-item {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.8rem;
+      animation: fadeIn 0.3s ease both;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .post-num { color: var(--accent); font-weight: 700; font-size: 0.85rem; flex-shrink: 0; font-family: 'Fira Code', monospace; }
+    .post-title { font-size: 0.88rem; color: var(--text); text-transform: capitalize; line-height: 1.5; }
+
+    .api-url {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      margin-bottom: 1rem;
+    }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Mid Task 3</div>
+  <h1>Fetch API - Data Retrieval</h1>
+  <p>Fetching from JSONPlaceholder and displaying the first 5 post titles</p>
+</header>
+
+<div class="container">
+
+  <!-- Code section -->
+  <div class="card">
+    <h2>JavaScript Code</h2>
+    <pre>
+// Fetch data from the public API
+fetch("https://jsonplaceholder.typicode.com/posts")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Network response was not ok: " + response.status);
+    }
+    return response.json();         // parse JSON
+  })
+  .then(posts => {
+    // Get only the first 5 posts
+    const firstFive = posts.slice(0, 5);
+
+    // Display each post title
+    firstFive.forEach((post, index) => {
+      console.log(`${index + 1}. ${post.title}`);
+    });
+  })
+  .catch(error => {
+    console.error("Fetch Error:", error.message);
+  });
+    </pre>
+  </div>
+
+  <!-- Live result -->
+  <div class="card">
+    <h2>Live Result - First 5 Post Titles</h2>
+    <div class="api-url">GET https://jsonplaceholder.typicode.com/posts</div>
+    <div id="loader"><div class="spinner"></div>Fetching posts...</div>
+    <div class="post-list" id="post-list"></div>
+  </div>
+
+</div>
+
+<footer>ObaidUllah - Mid-Semester Assignment - Task 3</footer>
+
+<script>
+  const loader   = document.getElementById("loader");
+  const postList = document.getElementById("post-list");
+
+  loader.style.display = "block";
+
+  fetch("https://jsonplaceholder.typicode.com/posts")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok: " + response.status);
+      }
+      return response.json();
+    })
+    .then(posts => {
+      loader.style.display = "none";
+
+      // Get only the first 5 posts
+      const firstFive = posts.slice(0, 5);
+
+      // Display each post title in the UI
+      firstFive.forEach((post, index) => {
+        const item = document.createElement("div");
+        item.className = "post-item";
+        item.style.animationDelay = `${index * 0.08}s`;
+        item.innerHTML = `
+          <span class="post-num">#${post.id}</span>
+          <span class="post-title">${post.title}</span>
+        `;
+        postList.appendChild(item);
+      });
+    })
+    .catch(error => {
+      loader.style.display = "none";
+      postList.innerHTML = `<div style="color:#fca5a5;padding:1rem">Fetch Error: ${error.message}</div>`;
+    });
+</script>
+</body>
+</html>

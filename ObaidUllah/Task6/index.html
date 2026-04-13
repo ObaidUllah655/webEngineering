@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task 6 – Notes App | ObaidUllah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --card: #16213e;
+      --accent: #f97316;
+      --accent2: #eab308;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #2d2d44;
+      --gradient: linear-gradient(135deg, #f97316, #eab308);
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .badge { display: inline-block; background: var(--gradient); color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 999px; margin-bottom: 0.8rem; }
+    header h1 { font-size: clamp(1.7rem,3.5vw,2.4rem); font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+    header p { color: var(--muted); font-size: 0.9rem; }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    /* Storage indicator */
+    .storage-bar {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.7rem 1.2rem;
+      margin-bottom: 1.5rem; font-size: 0.8rem; color: var(--muted);
+      flex-wrap: wrap; gap: 0.6rem;
+    }
+    .storage-bar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); flex-shrink: 0; }
+    .storage-bar strong { color: var(--accent); }
+
+    /* Add Note section */
+    .add-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .add-section::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--gradient); }
+    .add-section h2 { font-size: 0.9rem; font-weight: 600; color: var(--muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .form-row { display: flex; gap: 0.7rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+
+    #note-title {
+      flex: 1; min-width: 180px;
+      background: #0a0a14; border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.75rem 1rem;
+      color: var(--text); font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .tag-select {
+      background: #0a0a14; border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.75rem 1rem;
+      color: var(--muted); font-family: 'Inter', sans-serif;
+      font-size: 0.85rem; outline: none; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    #note-title:focus, .tag-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
+
+    #note-body {
+      width: 100%;
+      background: #0a0a14; border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.85rem 1rem;
+      color: var(--text); font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; line-height: 1.6; outline: none;
+      resize: vertical; min-height: 100px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #note-body:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(249,115,22,.12); }
+
+    .char-count { font-size: 0.72rem; color: var(--muted); text-align: right; margin-top: 0.3rem; }
+
+    .btn-row { display: flex; gap: 0.7rem; margin-top: 1rem; }
+
+    #save-btn {
+      padding: 0.75rem 1.8rem;
+      background: var(--gradient);
+      border: none; border-radius: 10px;
+      color: #fff; font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    #save-btn:hover { opacity: 0.88; transform: scale(1.02); }
+    #save-btn:active { transform: scale(0.97); }
+
+    #clear-form-btn {
+      padding: 0.75rem 1.2rem;
+      background: none; border: 1px solid var(--border);
+      border-radius: 10px; color: var(--muted);
+      font-family: 'Inter', sans-serif; font-size: 0.85rem;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    #clear-form-btn:hover { border-color: var(--muted); color: var(--text); }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--success); color: #fff;
+      font-size: 0.85rem; font-weight: 500;
+      padding: 0.7rem 1.2rem; border-radius: 10px;
+      opacity: 0; transform: translateY(10px);
+      transition: all 0.3s; pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Controls row */
+    .controls-row { display: flex; gap: 0.8rem; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; }
+
+    #search-input {
+      flex: 1; min-width: 200px;
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 1rem 0.65rem 2.4rem;
+      color: var(--text); font-family: 'Inter', sans-serif;
+      font-size: 0.87rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    #search-input:focus { border-color: var(--accent); }
+
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap .icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+
+    .sort-select {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 1rem;
+      color: var(--muted); font-family: 'Inter', sans-serif;
+      font-size: 0.82rem; outline: none; cursor: pointer;
+    }
+
+    /* Notes grid */
+    #notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+
+    /* Note card */
+    .note-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      position: relative;
+      overflow: hidden;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .note-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(249,115,22,.15); }
+
+    .note-card .color-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .note-card .note-tag {
+      display: inline-block;
+      font-size: 0.68rem; font-weight: 600;
+      padding: 0.18rem 0.55rem;
+      border-radius: 6px;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    .note-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.4; }
+
+    .note-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .note-card .note-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
+
+    .note-card .note-date { font-size: 0.7rem; color: var(--muted); }
+
+    .note-card .del-btn {
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      font-size: 0.85rem; padding: 0.25rem 0.4rem;
+      border-radius: 6px;
+      transition: color 0.18s, background 0.18s;
+    }
+    .note-card .del-btn:hover { color: var(--danger); background: rgba(239,68,68,.1); }
+
+    /* Empty */
+    #empty-notes { display: none; text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    #empty-notes .emoji { font-size: 3rem; margin-bottom: 1rem; }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Task 6 — Local Storage Notes</div>
+  <h1>My Notes App</h1>
+  <p>Persistent notes using Local Storage · ES6 Classes · Arrow Functions · Array Methods</p>
+</header>
+
+<div class="container">
+
+  <!-- Storage indicator -->
+  <div class="storage-bar">
+    <span class="dot"></span>
+    <span>Local Storage: <strong>Active</strong></span>
+    <span>—</span>
+    <span>Notes saved: <strong id="ls-count">0</strong></span>
+    <span>·</span>
+    <span>Storage used: <strong id="ls-size">0 B</strong></span>
+  </div>
+
+  <!-- Add Note -->
+  <div class="add-section">
+    <h2>New Note</h2>
+    <div class="form-row">
+      <input type="text" id="note-title" placeholder="Note title…" maxlength="80"/>
+      <select class="tag-select" id="note-tag">
+        <option value="general">General</option>
+        <option value="study">Study</option>
+        <option value="work">Work</option>
+        <option value="personal">Personal</option>
+        <option value="idea">Idea</option>
+      </select>
+    </div>
+    <textarea id="note-body" placeholder="Write your note here…" maxlength="600"></textarea>
+    <div class="char-count"><span id="char-cur">0</span> / 600</div>
+    <div class="btn-row">
+      <button id="save-btn">Save Note</button>
+      <button id="clear-form-btn">Clear</button>
+    </div>
+  </div>
+
+  <!-- Controls: search + sort -->
+  <div class="controls-row">
+    <div class="search-wrap">
+      <span class="icon">S</span>
+      <input type="text" id="search-input" placeholder="Search notes…"/>
+    </div>
+    <select class="sort-select" id="sort-select">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+      <option value="alpha">A → Z</option>
+    </select>
+  </div>
+
+  <!-- Notes grid -->
+  <div id="notes-grid"></div>
+  <div id="empty-notes"><div class="emoji">[ ]</div><p>No notes yet. Add your first one above!</p></div>
+</div>
+
+<div id="toast">Note saved!</div>
+
+<footer>ObaidUllah · Web Engineering Mid-Semester Assignment · Task 6</footer>
+
+<script>
+  // ══════════════════════════════════════════════════════
+  //  ES6 Class: Note
+  // ══════════════════════════════════════════════════════
+  class Note {
+    constructor(title, body, tag) {
+      this.id        = Date.now().toString();
+      this.title     = title.trim() || 'Untitled';
+      this.body      = body.trim();
+      this.tag       = tag;
+      this.createdAt = new Date().toISOString();
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  ES6 Class: NotesManager  (Local Storage API)
+  // ══════════════════════════════════════════════════════
+  class NotesManager {
+    constructor(storageKey = 'we_notes_app') {
+      this.storageKey = storageKey;
+      this.notes = this.load();
+    }
+
+    // Arrow method — load from Local Storage
+    load = () => {
+      const raw = localStorage.getItem(this.storageKey);
+      return raw ? JSON.parse(raw) : [];
+    };
+
+    // Arrow method — persist to Local Storage
+    save = () => {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.notes));
+    };
+
+    add = (title, body, tag) => {
+      const note = new Note(title, body, tag);
+      this.notes.unshift(note);   // newest first internally
+      this.save();
+      return note;
+    };
+
+    delete = (id) => {
+      this.notes = this.notes.filter(n => n.id !== id);
+      this.save();
+    };
+
+    // filter() — search
+    search = (query) => {
+      const q = query.toLowerCase();
+      return this.notes.filter(n =>
+        n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q)
+      );
+    };
+
+    // map() — get display data
+    getAll = () => this.notes.map(n => ({ ...n }));
+
+    get count() { return this.notes.length; }
+
+    storageSize = () => {
+      const raw = localStorage.getItem(this.storageKey) || '';
+      const bytes = new Blob([raw]).size;
+      return bytes < 1024 ? `${bytes} B` : `${(bytes/1024).toFixed(1)} KB`;
+    };
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  Tag config (colors, labels)
+  // ══════════════════════════════════════════════════════
+  const TAG_CONFIG = {
+    general:  { color: '#06b6d4', bg: 'rgba(6,182,212,.15)',  label: 'General'  },
+    study:    { color: '#a855f7', bg: 'rgba(168,85,247,.15)', label: 'Study'    },
+    work:     { color: '#f97316', bg: 'rgba(249,115,22,.15)', label: 'Work'     },
+    personal: { color: '#10b981', bg: 'rgba(16,185,129,.15)', label: 'Personal' },
+    idea:     { color: '#eab308', bg: 'rgba(234,179,8,.15)',  label: 'Idea'     },
+  };
+
+  // ══════════════════════════════════════════════════════
+  //  App state
+  // ══════════════════════════════════════════════════════
+  const mgr = new NotesManager();
+
+  const titleInput  = document.getElementById('note-title');
+  const bodyInput   = document.getElementById('note-body');
+  const tagSelect   = document.getElementById('note-tag');
+  const searchInput = document.getElementById('search-input');
+  const sortSelect  = document.getElementById('sort-select');
+  const grid        = document.getElementById('notes-grid');
+  const emptyEl     = document.getElementById('empty-notes');
+  const toast       = document.getElementById('toast');
+
+  // ══════════════════════════════════════════════════════
+  //  Render
+  // ══════════════════════════════════════════════════════
+  const render = () => {
+    const query = searchInput.value;
+    const sort  = sortSelect.value;
+
+    // filter() via search
+    let notes = query ? mgr.search(query) : mgr.getAll();
+
+    // sort using arrow comparators
+    if (sort === 'newest') notes = notes.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    if (sort === 'oldest') notes = notes.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    if (sort === 'alpha')  notes = notes.sort((a, b) => a.title.localeCompare(b.title));
+
+    // Update storage stats
+    document.getElementById('ls-count').textContent = mgr.count;
+    document.getElementById('ls-size').textContent  = mgr.storageSize();
+
+    if (notes.length === 0) {
+      grid.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    // map() to build cards — uses template literals + destructuring
+    grid.innerHTML = notes.map(({ id, title, body, tag, createdAt }) => {
+      const cfg  = TAG_CONFIG[tag] || TAG_CONFIG.general;
+      const date = new Date(createdAt).toLocaleString('en-PK', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      return `
+        <div class="note-card" id="nc-${id}">
+          <div class="color-bar" style="background:${cfg.color}"></div>
+          <span class="note-tag" style="background:${cfg.bg};color:${cfg.color}">${cfg.label}</span>
+          <h3>${title}</h3>
+          <p>${body || '<em style="opacity:.5">No content</em>'}</p>
+          <div class="note-footer">
+            <span class="note-date">${date}</span>
+            <button class="del-btn" onclick="deleteNote('${id}')" title="Delete note">Del</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  // ══════════════════════════════════════════════════════
+  //  Actions — arrow functions
+  // ══════════════════════════════════════════════════════
+  const saveNote = () => {
+    const title = titleInput.value;
+    const body  = bodyInput.value;
+    const tag   = tagSelect.value;
+
+    if (!title.trim() && !body.trim()) {
+      titleInput.focus();
+      titleInput.style.borderColor = 'var(--danger)';
+      setTimeout(() => titleInput.style.borderColor = '', 1200);
+      return;
+    }
+
+    mgr.add(title, body, tag);
+    titleInput.value = '';
+    bodyInput.value  = '';
+    document.getElementById('char-cur').textContent = '0';
+    render();
+    showToast('Note saved to Local Storage!');
+  };
+
+  const deleteNote = (id) => {
+    const el = document.getElementById(`nc-${id}`);
+    if (el) { el.style.transition = 'all 0.25s'; el.style.opacity = '0'; el.style.transform = 'scale(0.85)'; }
+    setTimeout(() => { mgr.delete(id); render(); }, 220);
+  };
+
+  const showToast = (msg) => {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  };
+
+  // ══════════════════════════════════════════════════════
+  //  Event listeners — arrow functions
+  // ══════════════════════════════════════════════════════
+  document.getElementById('save-btn').addEventListener('click', saveNote);
+  document.getElementById('clear-form-btn').addEventListener('click', () => {
+    titleInput.value = ''; bodyInput.value = '';
+    document.getElementById('char-cur').textContent = '0';
+  });
+
+  bodyInput.addEventListener('input', () => {
+    document.getElementById('char-cur').textContent = bodyInput.value.length;
+  });
+
+  titleInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveNote(); });
+  searchInput.addEventListener('input',  () => render());
+  sortSelect.addEventListener('change',  () => render());
+
+  // ══════════════════════════════════════════════════════
+  //  Seed sample notes if fresh install
+  // ══════════════════════════════════════════════════════
+  if (mgr.count === 0) {
+    mgr.add('Welcome to Notes App!', 'Your notes are saved in Local Storage and will persist even after you refresh the page. Try adding, searching, and deleting notes!', 'general');
+    mgr.add('ES6 Study Note', 'Classes, arrow functions, destructuring, template literals, let/const, map(), filter(), reduce(). Practice daily!', 'study');
+    mgr.add('Task 6 Complete', 'Implemented Local Storage Notes App using ES6 classes, Local Storage API, array methods, and arrow functions.', 'work');
+  }
+
+  // Initial render
+  render();
+</script>
+</body>
+</html>

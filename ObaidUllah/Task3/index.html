@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task 3 – Form Validation | ObaidUllah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f1a;
+      --card: #16213e;
+      --accent: #f59e0b;
+      --accent2: #ec4899;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --border: #2d2d44;
+      --gradient: linear-gradient(135deg, #f59e0b, #ec4899);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    header { text-align: center; margin-bottom: 2rem; }
+    .badge { display: inline-block; background: var(--gradient); color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 999px; margin-bottom: 0.8rem; }
+    header h1 { font-size: clamp(1.6rem,3.5vw,2.2rem); font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.4rem; }
+
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: var(--gradient);
+    }
+
+    .form-group { margin-bottom: 1.4rem; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap .icon {
+      position: absolute;
+      left: 1rem; top: 50%; transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      background: #0a0a14;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 1rem 0.8rem 2.8rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,158,11,.15); }
+    input.valid   { border-color: var(--success); }
+    input.invalid { border-color: var(--danger); }
+
+    .error-hint {
+      font-size: 0.76rem;
+      color: var(--danger);
+      margin-top: 0.4rem;
+      min-height: 1.1em;
+      transition: opacity 0.2s;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 0.9rem; top: 50%; transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.2rem;
+    }
+
+    .strength-bar { display: flex; gap: 4px; margin-top: 0.5rem; }
+    .strength-bar span {
+      flex: 1; height: 4px; border-radius: 99px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .strength-bar span.weak   { background: var(--danger); }
+    .strength-bar span.medium { background: var(--accent); }
+    .strength-bar span.strong { background: var(--success); }
+
+    .strength-label { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--gradient);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    button[type="submit"]:hover { opacity: 0.9; transform: scale(1.01); }
+    button[type="submit"]:active { transform: scale(0.98); }
+
+    /* Success banner */
+    #success-banner {
+      display: none;
+      align-items: center;
+      gap: 0.8rem;
+      background: rgba(16,185,129,.12);
+      border: 1px solid var(--success);
+      border-radius: 12px;
+      padding: 1rem 1.3rem;
+      color: var(--success);
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-top: 1.2rem;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 2.5rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Task 3 — Form Validation</div>
+  <h1>User Registration</h1>
+  <p>Client-side validation with ES6 — arrow functions &amp; template literals</p>
+</header>
+
+<div class="form-card">
+  <form id="reg-form" novalidate>
+
+    <!-- Name -->
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <div class="input-wrap">
+        <span class="icon">@</span>
+        <input type="text" id="name" placeholder="e.g. Obaid Ullah" autocomplete="name"/>
+      </div>
+      <div class="error-hint" id="name-error"></div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <div class="input-wrap">
+        <span class="icon">~</span>
+        <input type="email" id="email" placeholder="e.g. obaid@example.com" autocomplete="email"/>
+      </div>
+      <div class="error-hint" id="email-error"></div>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrap">
+        <span class="icon">#</span>
+        <input type="password" id="password" placeholder="Minimum 8 characters" autocomplete="new-password"/>
+        <button type="button" class="password-toggle" id="toggle-pw" aria-label="Toggle password visibility">Show</button>
+      </div>
+      <div class="strength-bar">
+        <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+      </div>
+      <div class="strength-label" id="strength-label"></div>
+      <div class="error-hint" id="pw-error"></div>
+    </div>
+
+    <button type="submit" id="submit-btn">Create Account →</button>
+  </form>
+
+  <div id="success-banner">
+    <span id="success-msg"></span>
+  </div>
+</div>
+
+<footer>ObaidUllah · Web Engineering Mid-Semester Assignment · Task 3</footer>
+
+<script>
+  // ── ES6: const/let, arrow functions, template literals ──
+
+  const form          = document.getElementById('reg-form');
+  const nameInput     = document.getElementById('name');
+  const emailInput    = document.getElementById('email');
+  const pwInput       = document.getElementById('password');
+  const togglePw      = document.getElementById('toggle-pw');
+  const successBanner = document.getElementById('success-banner');
+  const successMsg    = document.getElementById('success-msg');
+
+  // Arrow function — validate name
+  const validateName = () => {
+    const val = nameInput.value.trim();
+    const err = document.getElementById('name-error');
+    if (!val) {
+      err.textContent = 'Name is required.';
+      nameInput.className = 'invalid';
+      return false;
+    }
+    if (val.length < 3) {
+      err.textContent = 'Name must be at least 3 characters.';
+      nameInput.className = 'invalid';
+      return false;
+    }
+    err.textContent = '';
+    nameInput.className = 'valid';
+    return true;
+  };
+
+  // Arrow function — validate email using regex
+  const validateEmail = () => {
+    const val = emailInput.value.trim();
+    const err = document.getElementById('email-error');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!val) {
+      err.textContent = 'Email is required.';
+      emailInput.className = 'invalid';
+      return false;
+    }
+    if (!emailRegex.test(val)) {
+      err.textContent = 'Enter a valid email address (e.g. user@domain.com).';
+      emailInput.className = 'invalid';
+      return false;
+    }
+    err.textContent = '';
+    emailInput.className = 'valid';
+    return true;
+  };
+
+  // Arrow function — validate password & update strength bar
+  const validatePassword = () => {
+    const val = pwInput.value;
+    const err = document.getElementById('pw-error');
+    const bars   = [document.getElementById('s1'), document.getElementById('s2'),
+                    document.getElementById('s3'), document.getElementById('s4')];
+    const label  = document.getElementById('strength-label');
+
+    if (!val) {
+      err.textContent = 'Password is required.';
+      pwInput.className = 'invalid';
+      bars.forEach(b => b.className = '');
+      label.textContent = '';
+      return false;
+    }
+    if (val.length < 8) {
+      err.textContent = `Password must be at least 8 characters (currently ${val.length}).`;
+      pwInput.className = 'invalid';
+      bars.forEach((b, i) => b.className = i === 0 ? 'weak' : '');
+      label.textContent = 'Weak';
+      label.style.color = 'var(--danger)';
+      return false;
+    }
+
+    // Strength calculation
+    let strength = 0;
+    if (val.length >= 8)  strength++;
+    if (/[A-Z]/.test(val)) strength++;
+    if (/[0-9]/.test(val)) strength++;
+    if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+    const cls   = strength <= 1 ? 'weak' : strength === 2 ? 'medium' : 'strong';
+    const labels = { weak: 'Weak', medium: 'Medium', strong: 'Strong' };
+    const colors = { weak: 'var(--danger)', medium: 'var(--accent)', strong: 'var(--success)' };
+
+    bars.forEach((b, i) => b.className = i < strength ? cls : '');
+    label.textContent  = labels[cls];
+    label.style.color  = colors[cls];
+
+    err.textContent     = '';
+    pwInput.className  = 'valid';
+    return true;
+  };
+
+  // Toggle password visibility
+  togglePw.addEventListener('click', () => {
+    const isText = pwInput.type === 'text';
+    pwInput.type = isText ? 'password' : 'text';
+    togglePw.textContent = isText ? 'Show' : 'Hide';
+  });
+
+  // Live validation as user types
+  nameInput.addEventListener('input',  validateName);
+  emailInput.addEventListener('input', validateEmail);
+  pwInput.addEventListener('input',    validatePassword);
+
+  // Form submit — arrow function
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ok = validateName() & validateEmail() & validatePassword();
+    if (ok) {
+      const name = nameInput.value.trim();
+      // Template literal for success message
+      successMsg.textContent = `Welcome, ${name}! Your account has been created successfully.`;
+      successBanner.style.display = 'flex';
+      form.reset();
+      [nameInput, emailInput, pwInput].forEach(i => i.className = '');
+      ['s1','s2','s3','s4'].forEach(id => document.getElementById(id).className = '');
+      document.getElementById('strength-label').textContent = '';
+    }
+  });
+</script>
+</body>
+</html>
